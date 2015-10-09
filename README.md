@@ -11,3 +11,4 @@ packages dependencies:
 - std_msgs
 - opencv
 - openni
+- message_filters
