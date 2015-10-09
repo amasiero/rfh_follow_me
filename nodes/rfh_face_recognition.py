@@ -12,10 +12,10 @@ from datetime import datetime
 class face_recognition:
 
 	def __init__(self):
-		cv2.namedWindow("Image Window", 1)
 		self.bridge = CvBridge()
 		self.image_sub = rospy.Subscriber("camera/rgb/image_color", Image, self.callback)
 		self.face_cascade = cv2.CascadeClassifier('/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml')
+		self.dir_image_save = "~/faces/"
 
 	def callback(self,data):
 		try:
@@ -28,9 +28,9 @@ class face_recognition:
 
 		faces = self.face_cascade.detectMultiScale(
 			gray,
-			scaleFactor=1.3,
-			minNeighbors=5,
-			minSize=(30,30),
+			scaleFactor=1.1,
+			minNeighbors=10,
+			minSize=(100,100),
 			flags=cv2.cv.CV_HAAR_SCALE_IMAGE
 		)
 
@@ -45,8 +45,8 @@ class face_recognition:
 			cv2.rectangle(cv_image, (x1, y1), (x2, y2), (0,255,0), 2)
 			cv2.circle(cv_image, (x+(w/2), y+(h/2)), 3, (171,110,0), 2)
 
-		cv2.imshow('Video', cv_image)
-		cv2.imwrite('faces/crop_face' + str(datetime.now().time()) +'.png', roi_gray)
+		cv2.imshow('Face Recognition', cv_image)
+		cv2.imwrite(self.dir_image_save + 'crop_face' + str(datetime.now().time()) +'.png', roi_gray)
 		cv2.waitKey(3)
 
 def main(args):
