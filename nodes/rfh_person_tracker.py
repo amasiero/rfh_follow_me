@@ -2,8 +2,7 @@
 import roslib; roslib.load_manifest('rfh_follow_me')
 import rospy
 import tf
-import geometry_msgs.msg
-from p2os_msgs.msg import MotorState
+from rfh_follow_me.msg import Distance
 import numpy as np
 
 if __name__ == '__main__':
@@ -13,31 +12,18 @@ if __name__ == '__main__':
 
 	rate = rospy.Rate(10.0)
 	while not rospy.is_shutdown():
-		dist = 0.0
+		dist = Distance()
 		try:
 			if listener.canTransform('/openni', '/torso_1', rospy.Time(0)):
 				(trans, rot) = listener.lookupTransform('/openni', '/torso_1', rospy.Time(0))
-				dist = np.linalg.norm(trans)
+				dist.distance = np.linalg.norm(trans)
 
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
 			print e
 			continue
 
-		cmd_vel = rospy.Publisher("/cmd_vel", geometry_msgs.msg.Twist, queue_size=10)
-		motor_state = rospy.Publisher("/cmd_motor_state", MotorState, queue_size=10)
-		vel = geometry_msgs.msg.Twist()
-		state = MotorState()
-		state.state = 4
-
-		if dist > 0.7 and dist < 2:
-			rospy.loginfo('Distancia: %.f' % dist)
-			vel.linear.x = 0.1
-			vel.angular.z = 0.0
-			motor_state.publish(state)
-			cmd_vel.publish(vel)
-		else:
-			vel.linear.x = 0.0
-			vel.angular.z = 0.0
-			cmd_vel.publish(vel)
-
+		dist_pub = rospy.Publisher('/distance_person', Distance, queue_size=10)
+		dist.header.stamp = rospy.get_rostime()
+		dist_pub.publish(dist)
+		
 		rate.sleep()

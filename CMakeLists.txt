@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   message_filters
+  message_generation
 )
 
 find_package(OpenCV REQUIRED)
@@ -57,6 +58,11 @@ find_package(OpenCV REQUIRED)
 #   Message2.msg
 # )
 
+add_message_files(
+   FILES
+   Distance.msg
+)
+
 ## Generate services in the 'srv' folder
 # add_service_files(
 #   FILES
@@ -76,6 +82,11 @@ find_package(OpenCV REQUIRED)
 #   DEPENDENCIES
 #   geometry_msgs#   p2os_msgs#   sensor_msgs#   std_msgs
 # )
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -107,6 +118,8 @@ find_package(OpenCV REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+   CATKIN_DEPENDS
+   message_runtime	
 #  INCLUDE_DIRS include
 #  LIBRARIES rfh_follow_me
 #  CATKIN_DEPENDS cv_bridge geometry_msgs p2os_msgs roscpp rospy sensor_msgs std_msgs

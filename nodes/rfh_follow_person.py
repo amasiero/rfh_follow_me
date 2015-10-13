@@ -10,6 +10,7 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 from p2os_msgs.msg import MotorState
+from rfh_follow_me.msg import Distance
 from cv_bridge import CvBridge, CvBridgeError
 from datetime import datetime
 
@@ -18,48 +19,69 @@ class follow_person:
 		self.bridge = CvBridge()
 		
 		image_sub = message_filters.Subscriber("camera/rgb/image_color", Image)
-		depth_sub = message_filters.Subscriber("camera/depth/image", Image)
+		dist_sub = message_filters.Subscriber("distance_person", Distance)
 		
-		self.ts = message_filters.ApproximateTimeSynchronizer([image_sub, depth_sub], 10, 0.5)
+		self.ts = message_filters.ApproximateTimeSynchronizer([image_sub, dist_sub], 10, 0.5)
 		self.ts.registerCallback(self.callback)
 		
 		self.body_cascade = cv2.CascadeClassifier('/usr/local/share/OpenCV/haarcascades/haarcascade_upperbody.xml')
 		self.cmd_vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
-
+		self.motor_state_pub = rospy.Publisher("/cmd_motor_state", MotorState, queue_size=10)
 		
-	def callback(self, rgb_data, depth_data):
+		
+	def callback(self, rgb_data, dist_data):
 		try:
 			image = self.bridge.imgmsg_to_cv2(rgb_data, "bgr8")
-			depth_image = self.bridge.imgmsg_to_cv2(depth_data, "32FC1")
 		except CvBridgeError, e:
 			print e
 
-		depth_array = np.array(depth_image, dtype=np.float32)
-		cv2.normalize(depth_array, depth_array, 0, 1, cv2.NORM_MINMAX)
-		
 		gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 		upper_bodys = self.body_cascade.detectMultiScale(
 			gray,
 			scaleFactor=1.1,
 			minNeighbors=10,
-			minSize=(100,100),
+			minSize=(20,20),
 			flags=cv2.cv.CV_HAAR_SCALE_IMAGE
 		)
 		
 		px = 0.0
 		py = 0.0
+		(rows,cols,channels) = image.shape
 
 		for (x, y, w, h) in upper_bodys:
 			px = x+(w/2)
 			py = y+h
-			if px not in range(0, 480):
-				px = x
-			if py not in range(0, 640):
-				py = y
-			cv2.rectangle(depth_array, (x, y), (x+w, y+h), (0,255,0), 2)
-			cv2.circle(depth_array, (px, py), 3, (171,110,0), 2)
+			cv2.rectangle(image, (x, y), (x+w, y+h), (0,255,0), 2)
+			cv2.circle(image, (px, py), 3, (171,110,0), 2)
 
-		cv2.imshow('Body Recognition', depth_array)
+		cv2.imshow('Body Recognition', image)
+
+		vel = Twist()
+		state = MotorState()
+		state.state = 4
+
+		if dist_data.distance > 0.7 and dist_data.distance < 2: 
+			self.motor_state_pub.publish(state)
+			if (cols/4) > px and px > 0:
+				#Goes to the left
+				vel.linear.x = 0.0
+				vel.angular.z = 0.1
+			elif (cols - (cols/4)) < px and px < cols:
+				#Goes to the right
+				vel.linear.x = 0.0
+				vel.angular.z = -0.1
+			else:
+				rospy.loginfo('Distancia: %.4f' % dist_data.distance)
+				#Foward
+				vel.linear.x = 0.1
+				vel.angular.z = 0.0
+			
+			self.cmd_vel_pub.publish(vel)
+		else:
+			vel.linear.x = 0.0
+			vel.angular.z = 0.0
+			self.cmd_vel_pub.publish(vel)
+
 		cv2.waitKey(3)
 
 
