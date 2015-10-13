@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="p2os_driver" pkg="p2os_driver" type="p2os_driver" respawn="true" output="screen">
+    <param name="port" value="/dev/ttyUSB0"/>
+    <param name="use_sonar" value="false"/>
+    <param name="pulse" value="1.0"/>
+  </node>
+</launch>

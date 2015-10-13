@@ -13,10 +13,11 @@ if __name__ == '__main__':
 
 	rate = rospy.Rate(10.0)
 	while not rospy.is_shutdown():
+		dist = 0.0
 		try:
-			(trans, rot) = listener.lookupTransform('/openni', '/torso_1', rospy.Time(0))
-
-			dist = np.linalg.norm(trans)
+			if listener.canTransform('/openni', '/torso_1', rospy.Time(0)):
+				(trans, rot) = listener.lookupTransform('/openni', '/torso_1', rospy.Time(0))
+				dist = np.linalg.norm(trans)
 
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
 			print e
@@ -29,9 +30,14 @@ if __name__ == '__main__':
 		state.state = 4
 
 		if dist > 0.7 and dist < 2:
+			rospy.loginfo('Distancia: %.f' % dist)
 			vel.linear.x = 0.1
 			vel.angular.z = 0.0
 			motor_state.publish(state)
+			cmd_vel.publish(vel)
+		else:
+			vel.linear.x = 0.0
+			vel.angular.z = 0.0
 			cmd_vel.publish(vel)
 
 		rate.sleep()
