@@ -25,6 +25,7 @@ class follow_person:
 		
 		self.body_cascade = cv2.CascadeClassifier('/usr/local/share/OpenCV/haarcascades/haarcascade_upperbody.xml')
 		self.cmd_vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+
 		
 	def callback(self, rgb_data, depth_data):
 		try:
@@ -44,13 +45,23 @@ class follow_person:
 			minSize=(100,100),
 			flags=cv2.cv.CV_HAAR_SCALE_IMAGE
 		)
-	
+		
+		px = 0.0
+		py = 0.0
+
 		for (x, y, w, h) in upper_bodys:
+			px = x+(w/2)
+			py = y+h
+			if px not in range(0, 480):
+				px = x
+			if py not in range(0, 640):
+				py = y
 			cv2.rectangle(depth_array, (x, y), (x+w, y+h), (0,255,0), 2)
-			cv2.circle(depth_array, (x+(w/2), h), 3, (171,110,0), 2)
-	
+			cv2.circle(depth_array, (px, py), 3, (171,110,0), 2)
+
 		cv2.imshow('Body Recognition', depth_array)
 		cv2.waitKey(3)
+
 
 def main(args):
 	fp = follow_person()
