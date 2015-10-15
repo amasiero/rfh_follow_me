@@ -6,5 +6,5 @@
 
 	<node name="rfh_person_tracker" pkg="rfh_follow_me" type="rfh_person_tracker.py" respawn="true" output="screen"/>
 
-	<node name="walker" pkg="rfh_follow_me" type="rfh_follow_person.py" respawn="true" output="screen"/>
+	<node name="rfh_follow_person" pkg="rfh_follow_me" type="rfh_follow_person.py" respawn="true" output="screen"/>
 </launch>
