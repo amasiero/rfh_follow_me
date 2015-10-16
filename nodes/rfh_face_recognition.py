@@ -15,7 +15,7 @@ class face_recognition:
 		self.bridge = CvBridge()
 		self.image_sub = rospy.Subscriber("camera/rgb/image_color", Image, self.callback)
 		self.face_cascade = cv2.CascadeClassifier('/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml')
-		self.dir_image_save = "~/faces/"
+		self.dir_image_save = "/home/robofei/faces/"
 
 	def callback(self,data):
 		try:
@@ -46,7 +46,8 @@ class face_recognition:
 			cv2.circle(cv_image, (x+(w/2), y+(h/2)), 3, (171,110,0), 2)
 
 		cv2.imshow('Face Recognition', cv_image)
-		cv2.imwrite(self.dir_image_save + 'crop_face' + str(datetime.now().time()) +'.png', roi_gray)
+		if roi_gray is not None:
+			cv2.imwrite('{0}crop_face{1}.png'.format(self.dir_image_save ,datetime.now().time()), roi_gray)
 		cv2.waitKey(3)
 
 def main(args):
