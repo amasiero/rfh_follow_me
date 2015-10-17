@@ -113,16 +113,16 @@ class follow_person:
 				#Goes to the left
 				rospy.loginfo('left <<<<<<<<')
 				vel.linear.x = 0.0
-				vel.angular.z = 0.1
+				vel.angular.z = 0.2
 			elif (cols - (cols/3)) < px and px < cols:
 				#Goes to the right
 				rospy.loginfo('right >>>>>>>>')
 				vel.linear.x = 0.0
-				vel.angular.z = -0.1
+				vel.angular.z = -0.2
 			else:
 				rospy.loginfo('Distancia: %.4f' % dist_data.distance)
 				#Foward
-				vel.linear.x = 0.1
+				vel.linear.x = 0.2
 				vel.angular.z = 0.0
 			
 			self.cmd_vel_pub.publish(vel)
