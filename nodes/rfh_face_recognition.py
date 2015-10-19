@@ -16,7 +16,8 @@ class face_recognition:
 		self.image_sub = rospy.Subscriber("camera/rgb/image_color", Image, self.callback)
 		self.face_cascade = cv2.CascadeClassifier('/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml')
 		self.dir_image_save = "/home/robofei/faces/"
-
+		self.voice_play_pub = rospy.Publisher("speech",String,queue_size=1)
+		
 	def callback(self,data):
 		try:
 			cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
@@ -47,8 +48,12 @@ class face_recognition:
 
 		cv2.imshow('Face Recognition', cv_image)
 		if roi_gray is not None:
+			self.play_sound('Ready')
 			cv2.imwrite('{0}crop_face{1}.png'.format(self.dir_image_save ,datetime.now().time()), roi_gray)
 		cv2.waitKey(3)
+
+	def play_sound(self, str):
+		self.voice_play_pub.publish(str)
 
 def main(args):
 	fr = face_recognition()

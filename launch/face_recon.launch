@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find openni_launch)/launch/openni.launch" />
+	<include file="$(find rfh_speech)/launch/speech.launch" />
+	<node name="face_recognition" pkg="rfh_follow_me" type="rfh_face_recognition.py" respawn="true" output="screen"/>
+</launch>
