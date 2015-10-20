@@ -18,6 +18,9 @@ if __name__ == '__main__':
 			dist.is_calibrated = listener.canTransform('/openni', '/torso_1', rospy.Time(0))
 			if dist.is_calibrated:
 				(trans, rot) = listener.lookupTransform('/openni', '/torso_1', rospy.Time(0))
+				dist.x = trans[0]
+				dist.y = trans[1]
+				dist.z = trans[2]
 				dist.distance = np.linalg.norm(trans)
 				
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
