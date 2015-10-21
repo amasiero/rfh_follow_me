@@ -78,17 +78,17 @@ class follow_person:
 		state = MotorState()
 		state.state = 4
 
-		if dist_data.distance > 0.7 and dist_data.distance < 2: 
+		if dist_data.distance > 0.7 and dist_data.distance < 1.4: 
 			self.motor_state_pub.publish(state)
 			#rospy.loginfo('lim-left: {0} < px: {1} < lim-right: {2}'.format((cols/3), px, (cols - (cols/3))))
 			if ((cols/3) > px and px > 0) or (dist_data.y > 0.2):
 				#Goes to the left
-				rospy.loginfo('left <<<<<<<<')
+				#rospy.loginfo('left <<<<<<<<')
 				vel.linear.x = 0.3
 				vel.angular.z = 0.2
 			elif ((cols - (cols/3)) < px and px < cols) or (dist_data.y < -0.2):
 				#Goes to the right
-				rospy.loginfo('right >>>>>>>>')
+				#rospy.loginfo('right >>>>>>>>')
 				vel.linear.x = 0.3
 				vel.angular.z = -0.2
 			else:

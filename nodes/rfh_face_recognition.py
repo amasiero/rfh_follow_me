@@ -48,12 +48,14 @@ class face_recognition:
 
 		cv2.imshow('Face Recognition', cv_image)
 		if roi_gray is not None:
-			self.play_sound('Ready')
 			cv2.imwrite('{0}crop_face{1}.png'.format(self.dir_image_save ,datetime.now().time()), roi_gray)
 		cv2.waitKey(3)
 
 	def play_sound(self, str):
 		self.voice_play_pub.publish(str)
+
+	def check_people_database(self, roi):
+		pass
 
 def main(args):
 	fr = face_recognition()
