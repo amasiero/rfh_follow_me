@@ -27,6 +27,9 @@ class follow_person:
 		
 		self.cmd_vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
 		self.motor_state_pub = rospy.Publisher("/cmd_motor_state", MotorState, queue_size=10)
+		self.speech_pub = rospy.Publisher("/speech", String, queue_size=10)
+
+		self.fala = 1
 		
 		
 	def callback(self, rgb_data, dist_data):
@@ -77,28 +80,37 @@ class follow_person:
 		vel = Twist()
 		state = MotorState()
 		state.state = 4
-
-		if dist_data.distance > 0.7 and dist_data.distance < 1.4: 
+		
+		if dist_data.distance > 0.7 and dist_data.distance < 1.7: 
 			self.motor_state_pub.publish(state)
 			#rospy.loginfo('lim-left: {0} < px: {1} < lim-right: {2}'.format((cols/3), px, (cols - (cols/3))))
 			if ((cols/3) > px and px > 0) or (dist_data.y > 0.2):
 				#Goes to the left
 				#rospy.loginfo('left <<<<<<<<')
-				vel.linear.x = 0.3
+				vel.linear.x = 0.0
 				vel.angular.z = 0.2
 			elif ((cols - (cols/3)) < px and px < cols) or (dist_data.y < -0.2):
 				#Goes to the right
 				#rospy.loginfo('right >>>>>>>>')
-				vel.linear.x = 0.3
+				vel.linear.x = 0.0
 				vel.angular.z = -0.2
 			else:
-				rospy.loginfo('Distancia: %.4f' % dist_data.distance)
+				#rospy.loginfo('Distancia: %.4f' % dist_data.distance)
 				#Foward
-				vel.linear.x = 0.3
+				self.fala = 0
+				vel.linear.x = 0.2
 				vel.angular.z = 0.0
 			
 			self.cmd_vel_pub.publish(vel)
 		else:
+			if dist_data.distance < 0.7 and self.fala == 0:
+				self.speech_pub.publish("I am closer to you.")
+				self.fala = 1
+			elif dist_data.distance > 1.7 and self.fala == 0:
+				self.speech_pub.publish("You are very fast. Please, step back and wait for me.")
+				self.fala = 1
+			else:
+				pass
 			vel.linear.x = 0.0
 			vel.angular.z = 0.0
 			self.cmd_vel_pub.publish(vel)

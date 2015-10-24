@@ -1,10 +1,16 @@
 <?xml version="1.0"?>
 <launch>
 	<include file="$(find openni_launch)/launch/openni.launch" />
-	<include file="$(find rfh_follow_me)/launch/peoplebot.launch" />
+	
 	<node name="openni_tracker" pkg="openni_tracker" type="openni_tracker" respawn="true" output="screen" args="_camera_frame_id:=openni" />
-
+	
+	<include file="$(find rfh_speech)/launch/speech.launch" />
+	
+	<include file="$(find rfh_follow_me)/launch/peoplebot.launch" />
+	
 	<node name="rfh_person_tracker" pkg="rfh_follow_me" type="rfh_person_tracker.py" respawn="true" output="screen"/>
 
 	<node name="rfh_follow_person" pkg="rfh_follow_me" type="rfh_follow_person.py" respawn="true" output="screen"/>
+
+	<node name="rfh_sonar_verification" pkg="rfh_follow_me" type="rfh_sonar_verification.py" respawn="true" output="screen"/>
 </launch>
